@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- 针对移动设备设置 -->
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Bootstrap 模板</title>
+
+		<link href="./css/bootstrap.min.css" rel="stylesheet">
+		<script src="./js/jquery-1.11.3.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+
+	</head>
+
+	<body>
+		<div>
+			<div id="list">
+
+			</div>
+			<nav aria-label="Page navigation">
+				<ul class="pagination">
+					<li id="pre" onclick="nextProvisePage(this)"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+					<!-- <li><a href="#">1</a></li>
+					<li><a href="#">5</a></li> -->
+					<li id="next" onclick="nextProvisePage(this)">
+						<a href="#" aria-label="Next">
+							<span aria-hidden="true">&raquo;</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+
+	</body>
+</html>
+<script>
+	var baseurl = "http://127.0.0.1:8506/ajax/";
+	var currentPage = 1;
+	var globalTotalPage = 0;
+
+	function initPage() {
+		$.post(baseurl + "testPage?pageNum=1&pageSize=5", function(data) {
+			var totalPage = data.totalPage;
+			globalTotalPage = totalPage;
+			var list = data.data;
+			var pageNum = 1;
+			var jsonObject = eval(list);
+
+			$(jsonObject).each(function() {
+				$("#list").append("<p>" + this.name + "</p><br>");
+				
+			});
+			
+			for(var i = 0;i< totalPage;i++){
+				$("#next").before("<li> <a href='#' onclick='liOnClick(this)'>" + (pageNum++) + "</a></li>");
+			}
+
+			$("li a:contains('1')").parent().removeClass("disabled");
+			$("li a:contains('1')").parent().addClass("active");
+		});
+	}
+
+	function liOnClick(ob) {
+		var pageNum = $(ob).text();
+		$.post(baseurl + "testPage?pageNum=" + pageNum + "&pageSize=5", function(data) {
+			var list = data.data;
+			var jsonObject = eval(list);
+			$("#list").html("");
+			$(jsonObject).each(function() {
+				$("#list").append("<p>" + this.name + "</p><br>");
+			});
+
+
+		});
+		$("li a:contains('" + currentPage + "')").parent().removeClass("active");
+
+		$("li a:contains('" + pageNum + "')").parent().addClass("active");
+		currentPage = parseInt(pageNum);
+	}
+
+	function nextProvisePage(ob) {
+		var id = $(ob).attr("id");
+		var pageNum = currentPage;
+		if (id === "pre") {
+			if (currentPage == 1) {
+				return;
+			}
+			pageNum = currentPage - 1;
+		} else {
+			if (currentPage == globalTotalPage) {
+				return;
+			}
+			pageNum = currentPage + 1;
+		}
+		$.post(baseurl + "testPage?pageNum=" + pageNum + "&pageSize=5", function(data) {
+			var list = data.data;
+			var jsonObject = eval(list);
+			$("#list").html("");
+			$(jsonObject).each(function() {
+				$("#list").append("<p>" + this.name + "</p><br>");
+			});
+
+
+		});
+		$("li").removeClass("active");
+
+		$("li a:contains('" + pageNum + "')").parent().addClass("active");
+		currentPage = pageNum;
+	}
+
+	function dataParse() {
+		alert("call back........")
+	}
+	$(function() {
+		initPage();
+
+	});
+</script>
+<style>
+	.btn {
+		margin-top: 1px;
+	}
+
+	.huan {
+		width: 500px;
+	}
+</style>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- 针对移动设备设置 -->
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Bootstrap 模板</title>
+
+		<link href="./css/bootstrap.min.css" rel="stylesheet">
+		<script src="./js/jquery-1.11.3.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+
+	</head>
+
+	<body>
+		省份
+		<select id="provinces">
+			<option></option>
+		</select>
+		城市
+		<select id="citys">
+			<option></option>
+		</select>
+	</body>
+	</body>
+</html>
+<script>
+	var baseurl = "http://127.0.0.1:8506/ajax/";
+	var getProvices = function() {
+		$.post(baseurl+"getProvinces", function(data) {
+			var jsonObject = eval(data);
+			var province = $("#provinces");
+			$(jsonObject).each(function(){
+				province.append($("<option>"+this.name+"</option>"));
+			});
+		});
+	}
+	
+	var getCitys = function(pv) {
+		$.post(baseurl+"getCitys?province="+pv, function(data) {
+			var jsonObject = eval(data);
+			var province = $("#citys");
+			$(jsonObject).each(function(){
+				province.append($("<option>"+this.name+"</option>"));
+			});
+		});
+	}
+	$(function() {
+		
+		getProvices();
+		
+		$("#provinces").change(function(){
+			 $("#citys").html("请选择城市");
+			var pv = $("#provinces  option:selected").text();
+			getCitys(pv);
+		});
+		return;
+	});
+</script>s
